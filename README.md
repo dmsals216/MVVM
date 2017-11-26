@@ -115,3 +115,139 @@ public class User {
 ````
 
 ## List를 DataBinding 후 recyclerview에 넣어보기
+
+1. 첫번째로는 layout을 만든다.
+````
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.project.study.mvvm.ListActivity">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="368dp"
+            android:layout_height="495dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+</layout>
+````
+2. recycler안에 들어가는 viewitem을 만든다.
+````
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="user" type="com.project.study.mvvm.User"/>
+    </data>
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{user.id}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textpw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{user.password}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textid" />
+    </android.support.constraint.ConstraintLayout>
+</layout>
+````
+3. Adapter와 Holder를 만드는데 이때 Holder에서 받아오는 view와 Holder에 바인딩을 시켜준다.
+````
+public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.Holder>{
+    List<User> data = new ArrayList<>();
+
+    public void setData(List<User> data) {
+        this.data = data;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+        return new Holder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(Holder holder, int position) {
+        User user = data.get(position);
+        holder.binding.setUser(user);
+    }
+
+    @Override
+    public int getItemCount() {
+        return data.size();
+    }
+
+    class Holder extends RecyclerView.ViewHolder {
+        ListItemBinding binding;
+        public Holder(View itemView) {
+            super(itemView);
+            binding = DataBindingUtil.bind(itemView);
+        }
+    }
+}
+````
+4. Activity에서 activity_list와 바인딩을 시켜준후 recyclerview에 데이터를 넣어준다.
+````
+
+    TestListAdapter adapter;
+    ActivityListBinding binding;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_list);
+        adapter = new TestListAdapter();
+        binding.recyclerView.setAdapter(adapter);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        dataSetting();
+    }
+    private void dataSetting() {
+        String[] ids = {"dmsals", "merrong", "juwon", "haha", "zico"};
+        String[] pws = {"fdsifjaisfdj", "foasdjfidjsiof", "sidajfoijsfoj","fijsaojfjsofasadf"};
+        List<User> data = new ArrayList<>();
+        for(int i = 0; i < 100; i++) {
+            User user = new User();
+            user.id = ids[i%5];
+            user.password = pws[i%4];
+            data.add(user);
+        }
+        adapter.setData(data);
+    }
+}
+````
