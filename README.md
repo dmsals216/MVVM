@@ -251,3 +251,8 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.Holder
     }
 }
 ````
+
+
+### 참고
+
+http://gun0912.tistory.com/71
